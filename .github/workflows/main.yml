@@ -4,16 +4,17 @@ on:
   push:
     branches:
       - "**"
-vars:
-  IMAGE: ubuntu-20.04
-
 env:
-  ANDROID_NDK: android-ndk-r17b
-  ANDROID_NDK_HOME: $HOME/$ANDROID_NDK
+  env_var:
+    IMAGE: ubuntu-20.04
 
 jobs:
   build_android:
     runs-on: ${{ vars.IMAGE }}
+
+    env:
+      ANDROID_NDK: android-ndk-r17b
+      ANDROID_NDK_HOME: $HOME/$ANDROID_NDK
 
     steps:
       - name: Checkout Repository
