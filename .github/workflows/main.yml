@@ -131,7 +131,7 @@ jobs:
           cd android
           chmod +x gradlew 
           ./gradlew clean
-          #!./gradlew wrapper --gradle-version 6.2.2 --distribution-type all
+          #!./gradlew wrapper --gradle-version 6.3 --distribution-type all
           ./gradlew bundleRelease -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
         working-directory: telon-gateway-app
 
