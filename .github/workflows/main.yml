@@ -5,40 +5,27 @@ on:
     branches:
       - "**"
 
+env:
+  ANDROID_NDK: android-ndk-r17b
+  ANDROID_NDK_HOME: $HOME/$ANDROID_NDK
+  IMAGE: ubuntu-20.04
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: $IMAGE
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
-
-#      - name: Setup Node.js
-#        uses: actions/setup-node@v2
-#        with:
-#          #node-version: 20.18.1
-#          node-version: 12
-
-#      - name: Install dependencies
-#        run: npm install
-#        working-directory: telon-gateway-app
-#
-#      - name: Run tests
-#        run: npm test
+        uses: actions/checkout@v4
 
   build_android:
-    runs-on: ubuntu-latest
+    runs-on: $IMAGE
 
     needs: build
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
-      #- name: Setup Java 8
-      #  uses: actions/setup-java@v2
-      #  with:
-      #    distribution: 'temurin'
-      #    java-version: '8' # Требуется Java 8 для Gradle
+        uses: actions/checkout@v4
 
       - name: Cache Node.js
         uses: actions/cache@v4
@@ -49,32 +36,15 @@ jobs:
               ${{ runner.os }}-node-modules-
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 12
 
-
-      - name: Set up OpenJDK 8
-        run: |
-          sudo apt update
-          sudo apt install openjdk-8-jdk
-      #- name: Setup Java 8
-      #  uses: actions/setup-java@v2
-      #  with:
-            #distribution: 'temurin'
-            #java-version: '8'
-            #distribution: 'adoptopenjdk'
-      #- name: Setup Java 17
-      #  uses: actions/setup-java@v2
-      #  with:
-      #    distribution: 'temurin'
-      #    java-version: '17'
-
-      #- name: Setup Node.js
-      #  uses: actions/setup-node@v2
-      #  with:
-      #    node-version: 12
-      #    #node-version: 18.19.0
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+            distribution: 'jetbrains'
+            java-version: '11'
 
       - name: Setup Android SDK (API Level 19)
         uses: android-actions/setup-android@v2
@@ -82,43 +52,25 @@ jobs:
           api-level: 19
           ndk: true
           build-tools: 25.2.5
-      #    build-tools: 30.0.3
 
-
-      #- name: Install NDK (if required)
-      #  run: |
-      #    sdkmanager "ndk;21.4.7075529"
-      #    echo "ndk.dir=/usr/local/lib/android/sdk/ndk/21.4.7075529" >> android/local.properties
-      #  working-directory: telon-gateway-app        
-      #  env:
-      #    ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
-      #    PATH: $PATH:${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin
-
-      - name: Download NDK r17b
+      - name: Download NDK
         run: |
-          curl -o android-ndk-r17b-linux-x86_64.zip https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip
-          unzip android-ndk-r17b-linux-x86_64.zip -d $HOME/android-ndk
-          rm android-ndk-r17b-linux-x86_64.zip
+          curl -o $ANDROID_NDK-linux-x86_64.zip https://dl.google.com/android/repository/$ANDROID_NDK-linux-x86_64
+          unzip $ANDROID_NDK-linux-x86_64 -d $ANDROID_NDK_HOME
+          rm $ANDROID_NDK-linux-x86_64
 
       - name: Set NDK path
         run: |
-          echo "NDK_HOME=$HOME/android-ndk/android-ndk-r17b" >> $GITHUB_ENV
-          echo "ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r17b" >> $GITHUB_ENV
-          echo "ndk.dir=$HOME/android-ndk/android-ndk-r17b" > $GITHUB_WORKSPACE/local.properties
+          echo "ndk.dir=$ANDROID_NDK_HOME" > $GITHUB_WORKSPACE/local.properties
 
       - name: Verify NDK installation
         run: |
           echo "NDK_HOME=$NDK_HOME"
           ls -la $NDK_HOME
 
-      - name: Navigate to Project Root
-        run: cd $GITHUB_WORKSPACE
-        working-directory: telon-gateway-app
-
       - name: Install Dependencies
         run: npm install
         working-directory: telon-gateway-app
-
 
       - name: Build Android App Bundle
         run: |
@@ -128,15 +80,12 @@ jobs:
 
       - name: Build Android Release
         run: |
-          cd android
-          chmod +x gradlew 
           ./gradlew clean
-          #!./gradlew wrapper --gradle-version 6.3 --distribution-type all
           ./gradlew bundleRelease -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
-        working-directory: telon-gateway-app
+        working-directory: telon-gateway-app/android
 
   download_bundle:
-    runs-on: ubuntu-latest
+    runs-on: $IMAGE
 
     needs: build_android
 
@@ -147,9 +96,8 @@ jobs:
           cp $GITHUB_WORKSPACE/android/app/build/outputs/bundle/release/app-release.aab $GITHUB_WORKSPACE/dist
         working-directory: telon-gateway-app
 
-
       - name: Archive Bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: android-bundle
           path: $GITHUB_WORKSPACE/dist
