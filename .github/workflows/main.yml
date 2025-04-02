@@ -41,7 +41,7 @@ jobs:
           ndk-version: r17c
       - env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-      - run: echo "ndk.dir=${{ steps.setup-ndk.outputs.ndk-path }}" > $GITHUB_WORKSPACE/local.properties
+      - run: echo "ndk.dir=$ANDROID_NDK_HOME" > $GITHUB_WORKSPACE/local.properties
 
       - name: Install Dependencies
         run: npm install
