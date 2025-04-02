@@ -13,10 +13,10 @@ jobs:
       - name: Cache Node.js
         uses: actions/cache@v4
         with:
-            path: ~/.npm
-            key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-            restore-keys: |
-              ${{ runner.os }}-node-modules-
+          path: ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,18 +28,22 @@ jobs:
         with:
             distribution: 'jetbrains'
             java-version: '17'
+            cache: 'gradle'
 
       - name: Setup Android SDK (API Level 19)
         uses: android-actions/setup-android@v3
         with:
           api-level: 19
           build-tools: 25.2.5
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Download NDK
         id: setup-ndk
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r17c
+          local-cache: true
 
       - name: Set NDK path
         run: |
@@ -61,6 +65,12 @@ jobs:
           ./gradlew clean
           ./gradlew bundleRelease --quiet -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
         working-directory: telon-gateway-app/android
+
+      - name: Archive Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-bundle
+          path: $GITHUB_WORKSPACE/dist
 
   download_bundle:
     runs-on: ubuntu-20.04
