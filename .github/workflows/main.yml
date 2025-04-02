@@ -42,9 +42,9 @@ jobs:
 
       - name: Download NDK
         run: |
-          curl -o $ANDROID_NDK-linux-x86_64.zip https://dl.google.com/android/repository/$ANDROID_NDK-linux-x86_64
-          unzip $ANDROID_NDK-linux-x86_64 -d $ANDROID_NDK_HOME
-          rm $ANDROID_NDK-linux-x86_64
+          curl -o ${ANDROID_NDK}-linux-x86_64.zip https://dl.google.com/android/repository/${ANDROID_NDK}-linux-x86_64
+          unzip ${ANDROID_NDK}-linux-x86_64 -d $ANDROID_NDK_HOME
+          rm ${ANDROID_NDK}-linux-x86_64
 
       - name: Set NDK path
         run: |
