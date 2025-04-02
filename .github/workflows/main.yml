@@ -4,24 +4,16 @@ on:
   push:
     branches:
       - "**"
+vars:
+  IMAGE: ubuntu-20.04
 
 env:
   ANDROID_NDK: android-ndk-r17b
   ANDROID_NDK_HOME: $HOME/$ANDROID_NDK
-  IMAGE: ubuntu-20.04
 
 jobs:
-  build:
-    runs-on: ${{ env.IMAGE }}
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
   build_android:
-    runs-on: ${{ env.IMAGE }}
-
-    needs: build
+    runs-on: ${{ vars.IMAGE }}
 
     steps:
       - name: Checkout Repository
@@ -85,7 +77,7 @@ jobs:
         working-directory: telon-gateway-app/android
 
   download_bundle:
-    runs-on: ${{ IMAGE }}
+    runs-on: ${{ vars.IMAGE }}
 
     needs: build_android
 
