@@ -58,7 +58,7 @@ jobs:
       - name: Build Android Release
         run: |
           ./gradlew clean
-          ./gradlew bundleRelease -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
+          ./gradlew bundleRelease --quiet -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
         working-directory: telon-gateway-app/android
 
   download_bundle:
