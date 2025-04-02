@@ -6,10 +6,6 @@ jobs:
   build_android:
     runs-on: ubuntu-20.04
 
-    env:
-      ANDROID_NDK: android-ndk-r17b
-      ANDROID_NDK_HOME: $HOME/$ANDROID_NDK
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -41,19 +37,12 @@ jobs:
           build-tools: 25.2.5
 
       - name: Download NDK
-        run: |
-          curl -o ${ANDROID_NDK}-linux-x86_64.zip https://dl.google.com/android/repository/${ANDROID_NDK}-linux-x86_64
-          unzip ${ANDROID_NDK}-linux-x86_64 -d $ANDROID_NDK_HOME
-          rm ${ANDROID_NDK}-linux-x86_64
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r17c
 
       - name: Set NDK path
-        run: |
-          echo "ndk.dir=$ANDROID_NDK_HOME" > $GITHUB_WORKSPACE/local.properties
-
-      - name: Verify NDK installation
-        run: |
-          echo "NDK_HOME=$NDK_HOME"
-          ls -la $NDK_HOME
+        run: echo "ndk.dir=${{ steps.setup-ndk.outputs.ndk-path }}" > $GITHUB_WORKSPACE/local.properties
 
       - name: Install Dependencies
         run: npm install
