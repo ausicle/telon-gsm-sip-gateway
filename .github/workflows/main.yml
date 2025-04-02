@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
             distribution: 'jetbrains'
-            java-version: '11'
+            java-version: '17'
 
       - name: Setup Android SDK (API Level 19)
         uses: android-actions/setup-android@v3
