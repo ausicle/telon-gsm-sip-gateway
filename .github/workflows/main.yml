@@ -1,16 +1,10 @@
 name: Build
 
-on:
-  push:
-    branches:
-      - "**"
-env:
-  env_var:
-    IMAGE: ubuntu-20.04
+on: [push]
 
 jobs:
   build_android:
-    runs-on: ${{ vars.IMAGE }}
+    runs-on: ubuntu-20.04
 
     env:
       ANDROID_NDK: android-ndk-r17b
@@ -78,7 +72,7 @@ jobs:
         working-directory: telon-gateway-app/android
 
   download_bundle:
-    runs-on: ${{ vars.IMAGE }}
+    runs-on: ubuntu-20.04
 
     needs: build_android
 
